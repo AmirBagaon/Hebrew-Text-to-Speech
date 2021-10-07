@@ -1,0 +1,19 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <p id ="p1">hello</p>
+        <form id="some_form" action="world" method="post">{% csrf_token %}
+            <input id="in1" type="submit" value="Submit Feedback" />
+        </form>
+        
+        <script>
+        document.getElementById("in1").style.display='none';
+        document.getElementById("in1").click();
+        
+        </script>
+    </body>
+</html>
+
+
+

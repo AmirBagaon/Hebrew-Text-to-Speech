@@ -1,0 +1,90 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+<body>
+    <!-- <script>
+        console.log("Here1")
+        $("#friend_form").submit(function(e){
+            console.log("Here2")
+    $.post('/url/', $(this).serialize(), function(data){
+        console.log("Here3")
+        $('.message').html(JSON.parse(data).message);
+       // of course you can do something more fancy with your respone
+    });
+    e.preventDefault();
+});
+</script> -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        // console.log($('#messages').html)
+        $('#friend_form').submit(function() { // On form submit event
+            $.ajax({ // create an AJAX call...
+                data: $(this).serialize(), // get the form data
+                type: $(this).attr('method'), // GET or POST
+                url: "/main/temp", // the file to call
+                success: function(response) { // on success..
+                    console.log($('#friend_form').attr('action'))
+                    console.log(response)
+                    console.log(response.message)
+                    
+                    console.log("success")
+                    console.log($('message').html)
+                    $('#message').html(response.message); // update the DIV
+                },
+                error: function(e, x, r) { // on error..
+                    console.log("error")
+                    $('#message').html(e); // update the DIV
+                }
+            });
+            return false;
+        });
+    });
+    i = 0;
+
+
+$(document).ready(function(){
+
+//setup before functions
+var typingTimer;                //timer identifier
+var doneTypingInterval = 500;  //time in ms (5 seconds)
+//on keyup, start the countdown
+$('#id_first_name').keyup(function(){
+    clearTimeout(typingTimer);
+    if ($('#id_first_name').val()) {
+        document.getElementById("message").innerHTML = "...";
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+    }
+});
+
+//user is "finished typing," do something
+function doneTyping () {
+    //do something
+    $('#friend_form').submit();
+}
+
+//   $("#id_first_name").keyup(function(){
+//     $("span").text(i += 1);
+//     $('#friend_form').submit();
+//   });
+});
+    </script>
+    <h1>Leave a Suggestion Here</h1>
+        <div id="message" class="message">bla</div>
+        <div>
+            <form id="friend_form" action="" method="post">{% csrf_token %}
+                {{ form.as_table }}
+                <input type="submit" />
+            </form>
+        </div>
+        Enter your name: <input type="text" id = "input">
+
+<p>Keypresses: <span>0</span></p>
+<div>
+    <form id="some_form" action="/main/temp" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Submit Feedback" />
+    </form>
+</div>
+</body>
+</html>

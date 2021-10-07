@@ -1,0 +1,242 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <meta charset="UTF-8">
+        <style>
+            table tr td {
+    border: 1px solid #ccc;
+    margin: 0 auto;
+    
+}
+.disappear {
+    display: none;
+}
+.collapsed {
+    visibility: collapse;
+}
+
+textarea {
+  resize: none;
+  font-size: 30px;
+  font-family: monospace;
+}
+
+label.label-checkbox {
+  cursor: pointer;
+}
+
+
+label.label-checkbox input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+label.label-checkbox span {
+  padding: 11px 21px;
+  border: 1px solid #ccc;
+  display: inline-block;
+  color: #202020;
+  border-radius: 6px;
+  margin: 7px;
+  background: #f5f5f5;
+  user-select: none;
+}
+
+label.label-checkbox input:checked + span {
+  box-shadow: inset 1px 2px 5px #777;
+  transform: translateY(1px);
+  background: #e5e5e5;
+}
+button {
+  background: #ededed;
+  border: 1px solid #ccc;
+  padding: 10px 30px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button:active {
+  background: #e5e5e5;
+  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+     -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+          box-shadow: inset 0px 0px 5px #c1c1c1;
+   outline: none;
+}
+textarea {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+
+    width: 100%;
+}
+.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+h1 { color: #fe921f; font-family: 'Lato', sans-serif; font-size: 54px; font-weight: 300; line-height: 58px; margin: 0 0 58px; text-align: center; }
+
+
+p { color: #adb7bd; font-family: 'Lucida Sans', Arial, sans-serif; font-size: 16px; line-height: 26px; text-indent: 30px; margin: 0; }
+
+
+a { color: #fe921f; text-decoration: underline; }
+h2 { color: #ffffff; text-align: center;}
+
+a:hover { color: #ffffff }
+
+body {
+  background-color: rgb(46, 46, 46);
+}
+.date { background: #fe921f; color: #ffffff; display: inline-block; font-family: 'Lato', sans-serif; font-size: 12px; font-weight: bold; line-height: 12px; letter-spacing: 1px; margin: 0 0 30px; padding: 10px 15px 8px; text-transform: uppercase; }
+        </style>
+    </head>
+<body>
+
+    <br><br>
+    <h1>Hebrew Text to Speech!</h1>
+    <div>
+        <h2>Take your text with you as a podcast!</h2>
+    </div>
+        <div>
+            <!-- <form  id="friends_form" action="" method="post">{% csrf_token %}
+                {{ form.as_table }}
+                <input type="submit" />
+            </form> -->
+            <form  id="friend_form" action="" method="post">{% csrf_token %}
+                
+                <!-- <input type="submit" /> -->
+            </form>
+        </div>
+            <table class="center" style="width:80%; max-width:80%;" cellborder="1">
+                <tr>
+                    <center>
+                    <button id="switch_btn" style="font-size:larger; font-weight: bold;" onclick="switchText()">&#8644;</button>
+                    </center>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea readonly style="background: #f0efef;" dir="rtl" id="output_area" cols="45" rows="10"></textarea>
+                    </td>                    
+                    <td>
+                        <textarea dir="rtl" name="" id="input_area" cols="45" rows="10"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <!-- <td class="collapsed" align="right"></td> -->
+                    <!-- <td style="border: 0px; vertical-align: top; text-align: center;"> -->
+                    <td style="border: 0px; text-align: center;">
+                        <button id="copy_btn">Copy</button>
+                    </td>
+
+                    <td align="right" style="border: 0px;">
+                        <label class="label-checkbox">
+                        <input type="radio" id="Decryption" name="convertion_group" onclick="sendHelperForm()">
+                        <span>Decryption</span>
+                        </label>
+                        <label class="label-checkbox">
+                        <input type="radio" id="Encryption" name="convertion_group" onclick="sendHelperForm()">
+                        <span>Encryption</span>
+                        </label>
+                        <label class="label-checkbox">
+                        <input type="radio" id="ToLower" name="convertion_group" onclick="sendHelperForm()">
+                        <span>ToLower</span>
+                        </label>
+                        <label class="label-checkbox">
+                        <input type="radio" id="ToUpper" name="convertion_group" onclick="sendHelperForm()">
+                        <span>ToUpper</span>
+                        </label>
+                        <label class="label-checkbox">
+                        <input type="radio" id="Numerology" name="convertion_group" onclick="sendHelperForm()" checked>
+                        <span>Numerology</span>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+        
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        //Function to send POST with any desired data
+        $('#friend_form').submit(function() { // On form submit event
+            var convertion_type = document.querySelector('input[name="convertion_group"]:checked').id;
+            //The form contains the csrf token
+            var data = $(this).serializeArray(); // convert form to array
+            data.push({name: "input_area", value:  document.getElementById('input_area').value});
+            data.push({name: "convertion_type", value:  convertion_type});
+
+            // //Set the value of the form's field in order to submit it
+            // document.getElementById('id_placeholder').value = document.getElementById('input_area').value
+
+            $.ajax({ // create an AJAX call...
+                data: $.param(data), // get the form data
+                type: $(this).attr('method'), // GET or POST
+                url: "/main/temp", // the file to call
+                success: function(response) { // on success..
+                    $('#output_area').val(response.message); // update the DIV
+                },
+                error: function(e, x, r) { // on error..
+                    console.log("error")
+                    $('#output_area').html(e); // update the DIV
+                }
+            });
+            return false;
+        });
+    });
+
+$(document).ready(function(){
+
+//setup before functions
+var typingTimer;                //timer identifier
+var doneTypingInterval = 200;  //time in ms (5 seconds)
+//on keyup, start the countdown
+$('#input_area').keyup(function(){
+    console.log("in keyup")
+    clearTimeout(typingTimer);
+    if ($('#input_area').val()) {
+        document.getElementById("output_area").value = "...";
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+    }
+});
+
+//user is "finished typing," do something
+function doneTyping () {
+    //do something
+    $('#friend_form').submit();
+}
+
+});
+function sendHelperForm() {
+    document.getElementById("output_area").innerHTML = "...";
+    $('#friend_form').submit();
+}
+
+$("#copy_btn").click(function(e) {
+    e.preventDefault();
+    console.log( document.getElementById('output_area').value)
+    document.execCommand('copy', false, document.getElementById('output_area').select());
+    // alert("copy is completed")
+});
+
+function switchText(){
+    console.log("here")
+    console.log(document.getElementById("input_area").value)
+    console.log(document.getElementById("input_area").innerHTML)
+
+    let temp = document.getElementById("input_area").value;
+    document.getElementById("input_area").value = document.getElementById("output_area").value;
+    document.getElementById("output_area").value = temp;
+    
+    // let temp = obj1;
+    // obj1.value = obj2.value;
+    // obj2.value = temp;
+}
+    </script>
+
+</body>
+</html>
