@@ -17,12 +17,7 @@ def text_to_speech(request):
 def text_utils(request):
     return render(request, "text_utils.html")
 def translate_view(request):
-    if request.method == "POST":
-        print("here in translate_view")
-        return render(request, "temp.html")
-    context ={}
-    context['form']= TranslateForm()
-    return render(request, "translate.html", context)
+    return render(request, "translate.html")
 
 def temp(request):
     returnValue = ""

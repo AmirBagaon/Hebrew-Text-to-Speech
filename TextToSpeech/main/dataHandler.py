@@ -26,6 +26,8 @@ class DataHanlder():
             return self.decryption()
         elif self._data_type =="TextToSpeechPlay":
             return self.toSpeechURL()
+        elif self._data_type =="Translate":
+            return self.translate(str(self._data))    
 
     def toUpper(self):
         return str(self._data).upper()
@@ -129,3 +131,17 @@ class DataHanlder():
                                             data=json.dumps(__data)).json()["dictionary_entry_list"]
         for translation in translations_json:
             print(translation["term"])
+    def translate(self,txt_to_translate, to_language="auto", from_language="auto"):
+        #based on mtranslate library
+        import re, html, urllib.request, urllib.parse
+        txt_to_translate = urllib.parse.quote(txt_to_translate)
+        print("Here!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        HEADERS = {'User-Agent': "Mozilla/4.0 (compatible;MSIE 6.0;Windows NT 5.1;SV1;.NET CLR 1.1.4322;.NET CLR 2.0.50727;.NET CLR 3.0.04506.30)"}
+        BASE_URL = "http://translate.google.com/m?tl=%s&sl=%s&q=%s"
+        full_url = BASE_URL % (to_language, from_language, txt_to_translate)
+        request = urllib.request.Request(full_url, headers=HEADERS)
+        data = urllib.request.urlopen(request).read().decode("utf-8")
+        expr = r'(?s)class="(?:t0|result-container)">(.*?)<'
+        result = re.findall(expr, data)
+        return html.unescape(result[0])
