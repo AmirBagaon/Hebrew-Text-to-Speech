@@ -27,7 +27,9 @@ class DataHanlder():
         elif self._data_type =="TextToSpeechPlay":
             return self.toSpeechURL()
         elif self._data_type =="Translate":
-            return self.translate(str(self._data))    
+            return self.translate(str(self._data))
+        elif self._data_type =="Reverse":
+            return self.reverse_txt()
 
     def toUpper(self):
         return str(self._data).upper()
@@ -60,6 +62,9 @@ class DataHanlder():
             else:
                 output += letter
         return output
+    
+    def reverse_txt(self):
+        return str(self._data)[::-1]
 
 
 
