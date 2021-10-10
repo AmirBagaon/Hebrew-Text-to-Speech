@@ -106,9 +106,16 @@ class DataHanlder():
         with open(r"main/obj/" + name + '.pkl', 'rb') as f:
             return pickle.load(f)
 
+    def getVoicePerson(self):
+        if self.containsHebrew(str(self._data)):
+            return "he-IL-Asaf"
+        
+        import random
+        return random.choice(['Graham22k', 'Lucy22k', 'Peter22k', 'QueenElizabeth22k', 'Rachel22k', 'Heather22k', 'Karen22k', 'Kenny22k', 'Laura22k', 'Micah22k', 'Nelly22k', 'Rod22k', 'Ryan22k', 'Saul22k', 'Sharon22k', 'Tracy22k', 'Will22k'])
+
     def toSpeechURL(self):
         data = self._data
-        BASE_URL = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetVoiceStream/voiceName=he-IL-Asaf?inputText="
+        BASE_URL = f"https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetVoiceStream/voiceName={self.getVoicePerson()}?inputText="
         #Convert it to base 64
         text_b64 = base64.b64encode(data.encode()).decode()
         full_url = BASE_URL + text_b64
@@ -131,7 +138,14 @@ class DataHanlder():
                                             data=json.dumps(__data)).json()["dictionary_entry_list"]
         for translation in translations_json:
             print(translation["term"])
+    
+    def containsHebrew(self, s):
+        return any("\u0590" <= c <= "\u05EA" for c in s)
     def translate(self,txt_to_translate, to_language="auto", from_language="auto"):
+        #if text doesn't contain Hebrew - translate it to Hebrew
+        if not self.containsHebrew(txt_to_translate):
+            to_language="iw"
+
         #based on mtranslate library
         import re, html, urllib.request, urllib.parse
         txt_to_translate = urllib.parse.quote(txt_to_translate)

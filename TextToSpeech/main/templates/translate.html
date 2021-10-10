@@ -2,6 +2,7 @@
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <style>
             table tr td {
     border: 1px solid #ccc;
@@ -82,8 +83,9 @@ h1 { color: #fe921f; font-family: 'Lato', sans-serif; font-size: 54px; font-weig
 p { color: #adb7bd; font-family: 'Lucida Sans', Arial, sans-serif; font-size: 16px; line-height: 26px; text-indent: 30px; margin: 0; }
 
 
-a { color: #fe921f; text-decoration: underline; }
+a { color: #ffffff; text-decoration: underline; }
 h2 { color: #ffffff; text-align: center;}
+h3 { color: #ffffff; text-align: center;}
 
 a:hover { color: #ffffff }
 
@@ -96,18 +98,13 @@ body {
 <body>
 
     <br><br>
-    <h1>Hebrew Text to Speech!</h1>
+    <h1>Hebrew-English Translator</h1>
     <div>
-        <h2>Take your text with you as a podcast!</h2>
+        <h2>With the ability to hear your translated Hebrew words as well!</h2>
     </div>
         <div>
-            <!-- <form  id="friends_form" action="" method="post">{% csrf_token %}
-                {{ form.as_table }}
-                <input type="submit" />
-            </form> -->
+            
             <form  id="friend_form" action="" method="post">{% csrf_token %}
-                
-                <!-- <input type="submit" /> -->
             </form>
         </div>
             <table class="center" style="width:80%; max-width:80%;" cellborder="1">
@@ -129,9 +126,10 @@ body {
                     <!-- <td style="border: 0px; vertical-align: top; text-align: center;"> -->
                     <td style="border: 0px; text-align: center;">
                         <button id="copy_btn">Copy</button>
+                        <button id="play_btn" onclick="playbtn_click()"><i class="fa fa-volume-up" style="font-size:larger;"></i></button>
                     </td>
 
-                    <td align="right" style="border: 0px;">
+                    <!-- <td align="right" style="border: 0px;">
                         <label class="label-checkbox">
                         <input type="radio" id="Decryption" name="convertion_group" onclick="sendHelperForm()">
                         <span>Decryption</span>
@@ -149,36 +147,69 @@ body {
                         <span>ToUpper</span>
                         </label>
                         <label class="label-checkbox">
+                        <input type="radio" id="Translate" name="convertion_group" onclick="sendHelperForm()" checked>
+                        <span>Translate</span>
+                        </label>
+                        <label class="label-checkbox">
                         <input type="radio" id="Numerology" name="convertion_group" onclick="sendHelperForm()" checked>
                         <span>Numerology</span>
                         </label>
-                    </td>
+                    </td> -->
                 </tr>
             </table>
-        
+            <h2 style="font-size: medium;">Translations from Google.com, voices from Reverso.net</h2>
+            <br>
+            <br>
+            <a href="text_to_speech"><h2>Visit Hebrew Text to Speech!</h2></a>
+            <a href="text_utils"><h2>Visit Text Utils!</h2></a>
+            <div style="text-align: center;">
+                <a>
+                    <audio style="visibility: hidden;" id="audio" controls="controls" controls="download">
+                        <source id="audioSource" src="https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetVoiceStream/voiceName=he-IL-Asaf?inputText=16nXnNeV150g15DXoNeZINeQ15nXpteZ16c=" type="audio/mpeg">
+                      Your browser does not support the audio element.
+                      </audio>
+                </a>
+            </div>
 </div>
 
 
 <script type="text/javascript">
+    global_convertion_type = "Translate";
     $(document).ready(function() {
 
         //Function to send POST with any desired data
         $('#friend_form').submit(function() { // On form submit event
-            var convertion_type = document.querySelector('input[name="convertion_group"]:checked').id;
+            var convertion_type = global_convertion_type;
             //The form contains the csrf token
             var data = $(this).serializeArray(); // convert form to array
-            data.push({name: "input_area", value:  document.getElementById('input_area').value});
-            data.push({name: "convertion_type", value:  convertion_type});
+            value_to_translate = document.getElementById('input_area').value;
 
-            // //Set the value of the form's field in order to submit it
-            // document.getElementById('id_placeholder').value = document.getElementById('input_area').value
+            if (convertion_type == "TextToSpeechPlay") {
+                //If we want to listen,
+                //it would be to the result (output area) and not to what the user types
+                value_to_translate = document.getElementById('output_area').value;
+            }
+            data.push({name: "input_area", value: value_to_translate});
+            data.push({name: "convertion_type", value:  convertion_type});
 
             $.ajax({ // create an AJAX call...
                 data: $.param(data), // get the form data
                 type: $(this).attr('method'), // GET or POST
                 url: "/main/temp", // the file to call
                 success: function(response) { // on success..
-                    $('#output_area').val(response.message); // update the DIV
+                    if (convertion_type == "Translate") {
+                        text_direction = contains_heb(response.message)? 'rtl' : 'ltr';
+                        $('#output_area').css('direction', text_direction);
+                        $('#output_area').val(response.message); // update the DIV
+                    }
+                    else if (convertion_type == "TextToSpeechPlay") {
+                        var source = document.getElementById('audioSource');
+                        source.src = response.message;
+                        var audio = document.getElementById('audio');
+                        audio.load(); //call this to just preload the audio without playing
+                        audio.play(); //call this to play the song right away
+                    }
+
                 },
                 error: function(e, x, r) { // on error..
                     console.log("error")
@@ -188,6 +219,10 @@ body {
             return false;
         });
     });
+
+function contains_heb(str) {
+    return (/[\u0590-\u05FF]/).test(str);
+}
 
 $(document).ready(function(){
 
@@ -218,25 +253,23 @@ function sendHelperForm() {
 
 $("#copy_btn").click(function(e) {
     e.preventDefault();
-    console.log( document.getElementById('output_area').value)
     document.execCommand('copy', false, document.getElementById('output_area').select());
-    // alert("copy is completed")
 });
 
 function switchText(){
-    console.log("here")
-    console.log(document.getElementById("input_area").value)
-    console.log(document.getElementById("input_area").innerHTML)
-
     let temp = document.getElementById("input_area").value;
     document.getElementById("input_area").value = document.getElementById("output_area").value;
     document.getElementById("output_area").value = temp;
-    
-    // let temp = obj1;
-    // obj1.value = obj2.value;
-    // obj2.value = temp;
+    sendHelperForm();
 }
-    </script>
+function playbtn_click(){
+    if ($('#input_area').val()) {
+        global_convertion_type = "TextToSpeechPlay"
+        $('#friend_form').submit();
+        global_convertion_type = "Translate";
+    }
+}
+</script>
 
 </body>
 </html>
