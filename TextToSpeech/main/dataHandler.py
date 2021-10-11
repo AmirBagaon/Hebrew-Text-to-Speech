@@ -108,7 +108,13 @@ class DataHanlder():
         
         return result
     def load_obj(self, name):
-        with open(r"main/obj/" + name + '.pkl', 'rb') as f:
+        import os
+        dict_path = "main/obj/"
+        if not os.path.isdir(dict_path):
+            #For web
+            dict_path = "/home/HebrewTTS/Hebrew-Text-to-Speech/TextToSpeech/main/obj/"
+
+        with open(f"{dict_path}" + name + '.pkl', 'rb') as f:
             return pickle.load(f)
 
     def getVoicePerson(self):
